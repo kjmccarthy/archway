@@ -40,9 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-docker
     steps:
-      - name: Set tag
-        id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -56,4 +56,4 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: archway
-        run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.vars.outputs.tag }}
+        run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.RELEASE_VERSION }}
